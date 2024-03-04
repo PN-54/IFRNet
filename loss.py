@@ -34,9 +34,12 @@ class Ternary(nn.Module):
         loc_diff_y = self.transform(y)
         diff = loc_diff_x - loc_diff_y.detach()
         dist = (diff ** 2 / (0.1 + diff ** 2)).mean(dim=1, keepdim=True)
-        mask = self.valid_mask(x)
-        loss = (dist * mask).mean()
-        return loss
+        if not isinstance(x, torch.fx.Proxy):
+            mask = self.valid_mask(x)
+            loss = (dist * mask).mean()
+            return loss
+        # when converting to Timeloop, since this is not a convolution, it does not matter
+        return dist.mean()
 
 
 class Geometry(nn.Module):
@@ -69,9 +72,12 @@ class Geometry(nn.Module):
         loc_diff_y = self.transform(y)
         diff = loc_diff_x - loc_diff_y
         dist = (diff ** 2 / (0.1 + diff ** 2)).mean(dim=1, keepdim=True)
-        mask = self.valid_mask(x)
-        loss = (dist * mask).mean()
-        return loss
+        if not isinstance(x, torch.fx.Proxy):
+            mask = self.valid_mask(x)
+            loss = (dist * mask).mean()
+            return loss
+        # when converting to Timeloop, since this is not a convolution, it does not matter
+        return dist.mean()
 
 
 class Charbonnier_L1(nn.Module):

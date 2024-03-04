@@ -23,7 +23,7 @@ def warp(img, flow):
         return output
     # return img when converting to timeloop problems, since we only care about 
     # convolutions in hw metrics
-    return img 
+    return img.expand(flow.shape[0], -1, flow.shape[2], flow.shape[3])
 
 
 def get_robust_weight(flow_pred, flow_gt, beta):
